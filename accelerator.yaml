@@ -9,6 +9,9 @@ accelerator:
 
   # options for the UI
   options:
+  - name: projectName
+    defaultValue: This is my defaultValue
+    description: See how cool it is
   - name: deploymentType
     inputType: select
     choices:
