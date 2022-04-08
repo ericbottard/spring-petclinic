@@ -23,7 +23,15 @@ accelerator:
       text: Skip deployment configuration
     defaultValue: workload
     required: true
-
+  imports:
+  - name: java-version  # This gives a name to the fragment *inside this file*. See AcceleratorInvocation below
+    git:
+      url: https://github.com/ericbottard/sample-fragments.git
+      ref:
+        branch: main # Could use tag, semver, commit
+      subpath: java-version/
+      # Thanks to this import, this accelerator (spring-petclinic) now has TWO options:
+      # deploymentType + javaVersion.  
 engine:
   merge:
     - include: [ "**" ]
@@ -130,3 +138,5 @@ engine:
             with: "#artifactId.toLowerCase()"
         - type: RewritePath
           rewriteTo: "'readme.md'"
+    - type: AcceleratorInvocation
+      reference: java-version
