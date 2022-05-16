@@ -25,7 +25,6 @@ accelerator:
     required: true
   imports:
   - name: java-version
-  - name: chained
 engine:
   merge:
     - include: [ "**" ]
