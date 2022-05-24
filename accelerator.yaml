@@ -25,6 +25,10 @@ accelerator:
     required: true
   imports:
   - name: java-version
+  - name: java-version2
+    expose:
+      - name: javaVersion
+        as: jv2
 engine:
   merge:
     - include: [ "**" ]
