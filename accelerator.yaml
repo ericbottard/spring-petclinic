@@ -29,6 +29,7 @@ accelerator:
     expose:
       - name: javaVersion
         as: jv2
+  - name: chained      
 engine:
   merge:
     - include: [ "**" ]
