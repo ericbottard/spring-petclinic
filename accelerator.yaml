@@ -29,6 +29,9 @@ accelerator:
     expose:
       - name: javaVersion
         as: jv2
+        dependsOn:
+            name: deploymentType
+            value: none
   - name: chained      
 engine:
   merge:
