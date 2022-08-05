@@ -24,15 +24,7 @@ accelerator:
     defaultValue: workload
     required: true
   imports:
-  - name: java-version
-  - name: java-version2
-    expose:
-      - name: javaVersion
-        as: jv2
-        dependsOn:
-            name: deploymentType
-            value: none
-  - name: chained      
+  - name: leaf-fragment
 engine:
   merge:
     - include: [ "**" ]
