@@ -48,8 +48,6 @@ accelerator:
       name: multi2
       value: [v3]
 
-  imports:
-  - name: leaf-fragment
 engine:
   merge:
     - include: [ "**" ]
