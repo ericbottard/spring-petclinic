@@ -3,50 +3,83 @@ accelerator:
   description: A sample Spring-based application
   iconUrl: https://github.com/sample-accelerators/icons/raw/master/icon-pets.jpeg
   tags:
-  - java
-  - spring
-  - tanzu
-  - cloud-foundry
+    - java
+    - spring
+    - tanzu
+    - cloud-foundry
+
+  types:
+    - name: "Task"
+      struct:
+      - name: "title"
+        dataType: "string"
+        description: "Lorem Ipsum"
+        label: "Title"
+        required: true
+      - name: "onlyDigits"
+        dataType: "string"
+        description: "Only digits field"
+        label: "Only digits"
+        validationRegex: "\\d+"
+      - name: "choice"
+        dataType: "string"
+        description: "select field"
+        label: "Choices Field"
+        inputType: "select"
+        choices:
+          - text: "Choice 1"
+            value: "choice-1"
+          - text: "Choice 2"
+            value: "choice-2"
+          - text: "Choice 3"
+            value: "choice-3"
+      - name: "dependant"
+        dataType: "number"
+        description: "dependant on choice"
+        label: "Dependant"
+        dependsOn:
+          name: "choice"
+          value: "choice-2"
 
   # options for the UI
   options:
-  - name: deploymentType
-    inputType: select
-    choices:
-    - value: workload
-      text: TAP workload
-    - value: k8s-simple
-      text: Kubernetes deployment and service
-    - value: manifest
-      text: Cloud Foundry manifest
-    - value: none
-      text: Skip deployment configuration
-    defaultValue: workload
-    required: true
-  - name: multi1
-    dataType: [string]
-    choices:
-    - value: v1
-      text: Value 1
-    - value: v2
-      text: Value 2
-    - value: v3
-      text: Value 3
-    inputType: checkbox
-  - name: multi2
-    dataType: [string]
-    choices:
-    - value: v1
-      text: Value 1
-    - value: v2
-      text: Value 2
-    - value: v3
-      text: Value 3
-    inputType: checkbox
-  - name: third
-    dependsOn: 
-      name: multi2
-      value: [v3]
+    - name: deploymentType
+      inputType: select
+      choices:
+        - value: workload
+          text: TAP workload
+        - value: k8s-simple
+          text: Kubernetes deployment and service
+        - value: manifest
+          text: Cloud Foundry manifest
+        - value: none
+          text: Skip deployment configuration
+      defaultValue: workload
+      required: true
+    - name: multi1
+      dataType: [string]
+      choices:
+        - value: v1
+          text: Value 1
+        - value: v2
+          text: Value 2
+        - value: v3
+          text: Value 3
+      inputType: checkbox
+    - name: multi2
+      dataType: [string]
+      choices:
+        - value: v1
+          text: Value 1
+        - value: v2
+          text: Value 2
+        - value: v3
+          text: Value 3
+      inputType: checkbox
+    - name: third
+      dependsOn:
+        name: multi2
+        value: [v3]
 
 engine:
   merge:
@@ -54,105 +87,105 @@ engine:
       exclude: [ "pom.xml", "readme.md", "cloudfoundry/**", "kubernetes/**", "catalog/*.yaml", ".github/**", "build.gradle*", "settings.gradle*", "gradlew*", "gradle/**" ]
     - include: [ "pom.xml" ]
       chain:
-      - type: ReplaceText
-        substitutions:
-        - text: spring-petclinic
-          with: "#artifactId.toLowerCase()"
+        - type: ReplaceText
+          substitutions:
+            - text: spring-petclinic
+              with: "#artifactId.toLowerCase()"
     - include: [ "kubernetes/k8s/deployment.yaml", "kubernetes/k8s/service.yaml" ]
       condition: "#deploymentType == 'k8s-simple'"
       chain:
-      - type: ReplaceText
-        substitutions:
-        - text: spring-petclinic
-          with: "#artifactId.toLowerCase()"
-      - type: RewritePath
-        rewriteTo: "'kubernetes/' + #filename"
+        - type: ReplaceText
+          substitutions:
+            - text: spring-petclinic
+              with: "#artifactId.toLowerCase()"
+        - type: RewritePath
+          rewriteTo: "'kubernetes/' + #filename"
     - include: [ "kubernetes/k8s/Tiltfile" ]
       condition: "#deploymentType == 'k8s-simple'"
       chain:
-      - type: ReplaceText
-        substitutions:
-        - text: spring-petclinic
-          with: "#artifactId.toLowerCase()"
-      - type: RewritePath
-        rewriteTo: "#filename"
+        - type: ReplaceText
+          substitutions:
+            - text: spring-petclinic
+              with: "#artifactId.toLowerCase()"
+        - type: RewritePath
+          rewriteTo: "#filename"
     - include: [ "kubernetes/tap/workload.yaml" ]
       condition: "#deploymentType == 'workload'"
       chain:
-      - type: ReplaceText
-        substitutions:
-        - text: ": spring-petclinic"
-          with: "': ' + #artifactId.toLowerCase()"
-      - type: RewritePath
-        rewriteTo: "'config/' + #filename"
+        - type: ReplaceText
+          substitutions:
+            - text: ": spring-petclinic"
+              with: "': ' + #artifactId.toLowerCase()"
+        - type: RewritePath
+          rewriteTo: "'config/' + #filename"
     - include: [ "catalog/*.yaml" ]
       condition: "#deploymentType == 'workload'"
       chain:
-      - type: ReplaceText
-        substitutions:
-        - text: spring-petclinic
-          with: "#artifactId.toLowerCase()"
+        - type: ReplaceText
+          substitutions:
+            - text: spring-petclinic
+              with: "#artifactId.toLowerCase()"
     - include: [ "cloudfoundry/manifest.yml" ]
       condition: "#deploymentType == 'manifest'"
       chain:
-      - type: ReplaceText
-        substitutions:
-        - text: ": spring-petclinic"
-          with: "': ' + #artifactId.toLowerCase()"
-      - type: RewritePath
-        rewriteTo: "'config/' + #filename"
+        - type: ReplaceText
+          substitutions:
+            - text: ": spring-petclinic"
+              with: "': ' + #artifactId.toLowerCase()"
+        - type: RewritePath
+          rewriteTo: "'config/' + #filename"
     - name: README
       type: Combo
       onConflict: Append
       sources:
-      - include: [ "readme.md"]
-        chain:
-        - type: ReplaceText
-          condition: "#deploymentType == 'k8s-simple' || #deploymentType == 'workload'"
-          substitutions:
-          - text: '## Running petclinic locally'
-            with: |-
-              '## Running petclinic locally
-              
-              > *Note:* The beginning of this `readme.md` file is from the [original Spring PetClinic](https://github.com/spring-projects/spring-petclinic.git) sample app.              
-              > To see how to deploy this Accelerator Sample version of Spring PetClinic, go to [Deploying to Kubernetes](#deploying-to-kubernetes)
-              '
-        - type: ReplaceText
+        - include: [ "readme.md"]
+          chain:
+            - type: ReplaceText
+              condition: "#deploymentType == 'k8s-simple' || #deploymentType == 'workload'"
+              substitutions:
+                - text: '## Running petclinic locally'
+                  with: |-
+                    '## Running petclinic locally
+                    
+                    > *Note:* The beginning of this `readme.md` file is from the [original Spring PetClinic](https://github.com/spring-projects/spring-petclinic.git) sample app.              
+                    > To see how to deploy this Accelerator Sample version of Spring PetClinic, go to [Deploying to Kubernetes](#deploying-to-kubernetes)
+                    '
+            - type: ReplaceText
+              condition: "#deploymentType == 'manifest'"
+              substitutions:
+                - text: '## Running petclinic locally'
+                  with: |-
+                    '## Running petclinic locally
+                    
+                    > *Note:* The beginning of this `readme.md` file is from the [original Spring PetClinic](https://github.com/spring-projects/spring-petclinic.git) sample app.              
+                    > To see how to deploy this Accelerator Sample version of Spring PetClinic, go to [Deploying to Cloud Foundry](#deploying-to-cloud-foundry)
+                    '
+        - include: [ "kubernetes/k8s/DEPLOYING.md" ]
+          condition: "#deploymentType == 'k8s-simple'"
+          chain:
+            - type: ReplaceText
+              substitutions:
+                - text: spring-petclinic
+                  with: "#artifactId.toLowerCase()"
+            - type: RewritePath
+              rewriteTo: "'readme.md'"
+        - include: [ "kubernetes/tap/DEPLOYING.md" ]
+          condition: "#deploymentType == 'workload'"
+          chain:
+            - type: ReplaceText
+              substitutions:
+                - text: spring-petclinic
+                  with: "#artifactId.toLowerCase()"
+            - type: RewritePath
+              rewriteTo: "'readme.md'"
+        - include: [ "cloudfoundry/DEPLOYING.md" ]
           condition: "#deploymentType == 'manifest'"
-          substitutions:
-          - text: '## Running petclinic locally'
-            with: |-
-              '## Running petclinic locally
-              
-              > *Note:* The beginning of this `readme.md` file is from the [original Spring PetClinic](https://github.com/spring-projects/spring-petclinic.git) sample app.              
-              > To see how to deploy this Accelerator Sample version of Spring PetClinic, go to [Deploying to Cloud Foundry](#deploying-to-cloud-foundry)
-              '
-      - include: [ "kubernetes/k8s/DEPLOYING.md" ]
-        condition: "#deploymentType == 'k8s-simple'"
-        chain:
-        - type: ReplaceText
-          substitutions:
-          - text: spring-petclinic
-            with: "#artifactId.toLowerCase()"
-        - type: RewritePath
-          rewriteTo: "'readme.md'"
-      - include: [ "kubernetes/tap/DEPLOYING.md" ]
-        condition: "#deploymentType == 'workload'"
-        chain:
-        - type: ReplaceText
-          substitutions:
-          - text: spring-petclinic
-            with: "#artifactId.toLowerCase()"
-        - type: RewritePath
-          rewriteTo: "'readme.md'"
-      - include: [ "cloudfoundry/DEPLOYING.md" ]
-        condition: "#deploymentType == 'manifest'"
-        chain:
-        - type: ReplaceText
-          substitutions:
-          - text: spring-petclinic
-            with: "#artifactId.toLowerCase()"
-        - type: RewritePath
-          rewriteTo: "'readme.md'"
+          chain:
+            - type: ReplaceText
+              substitutions:
+                - text: spring-petclinic
+                  with: "#artifactId.toLowerCase()"
+            - type: RewritePath
+              rewriteTo: "'readme.md'"
     - type: AcceleratorInvocation
       reference: java-version
