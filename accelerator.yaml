@@ -43,6 +43,10 @@ accelerator:
 
   # options for the UI
   options:
+    - name: myTasks
+      dataType: [Task]
+      label: See, we're using custom types
+      description: awesome description 
     - name: deploymentType
       inputType: select
       choices:
